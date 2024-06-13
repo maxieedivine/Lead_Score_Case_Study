@@ -1,0 +1,39 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the Excel file
+file_path = '/content/hood.xlsx'  # Update the path to your file if needed
+excel_data = pd.ExcelFile(file_path)
+
+# Load the data from the 'hood' sheet
+data = pd.read_excel(file_path, sheet_name='hood')
+
+# Create a plot for each time series in the dataset
+for column in data.columns:
+    if 'Time' in column:
+        # Get the corresponding value column
+        value_column = column.replace('Time', 'ValueY')
+        if value_column in data.columns:
+            # Extract the time and value columns
+            time_series = data[column]
+            values_series = data[value_column]
+
+            # Attempt to convert the time series to datetime objects
+            try:
+                time_series = pd.to_datetime(time_series)
+            except ValueError:
+                print(f"Warning: Could not convert '{column}' to datetime. Using original values.")
+
+            # Create the line plot
+            plt.figure(figsize=(10, 6))
+            plt.plot(time_series, values_series, marker='o', linestyle='-')
+            plt.title(f'{column} Time Series Data')
+            plt.xlabel('Time')
+            plt.ylabel('Value')
+            plt.xticks(rotation=45)
+            plt.grid(True)
+
+            # Save the plot to a file
+            plot_filename = f'{column}_timeseries.png'
+            plt.savefig(plot_filename)
+            plt.close
